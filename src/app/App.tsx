@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from 'react'
 interface ProcessedImage {
   id: string
   url: string
-  processedUrl: string
+  processedImageUrl: string
 }
 
 export enum ImageStyle {
@@ -41,12 +41,12 @@ export const App = () => {
     if (!selectedImage) return
 
     setIsProcessing(true)
-    
+
     try {
       const formData = new FormData()
       formData.append('file', selectedImage)
       formData.append('style', selectedStyle)
-      
+
       const response = await fetch('http://localhost:8080/api/images', {
         method: 'POST',
         body: formData
@@ -57,7 +57,7 @@ export const App = () => {
       }
 
       const processedImage = await response.json()
-      
+
       setProcessedImages(prev => [...prev, {
         ...processedImage,
       }])
@@ -66,7 +66,7 @@ export const App = () => {
     } finally {
       setSelectedImage(null)
       setIsProcessing(false)
-      
+
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
@@ -133,7 +133,7 @@ export const App = () => {
       )}
 
       <div className="gallery">
-        {[...processedImages].reverse().map(image => (
+        {[...processedImages].reverse().map((image: ProcessedImage)  => (
           <div key={image.id} className="gallery-item">
             <div className="image-container">
               <img src={`http://localhost:9000${image.url}`} alt="Processed" className="gallery-image" />
