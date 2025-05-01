@@ -2,6 +2,7 @@ import './App.css'
 import { useMe } from '../shared/hooks/useMe'
 import { useTelegram } from '../shared/hooks/useTelegram'
 import { useState, useRef, useEffect } from 'react'
+import { useTopSafeArea } from '../shared/hooks/useTopSafeArea'
 
 interface ProcessedImage {
   id: string
@@ -22,6 +23,7 @@ export enum ImageStyle {
 export const App = () => {
   useMe()
   useTelegram()
+  const { topSafeAreaOffset } = useTopSafeArea(40)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [processedImages, setProcessedImages] = useState<ProcessedImage[]>([])
@@ -47,7 +49,8 @@ export const App = () => {
       formData.append('file', selectedImage)
       formData.append('style', selectedStyle)
 
-      const response = await fetch('http://localhost:8080/api/images', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+      const response = await fetch(apiUrl + '/api/images', {
         method: 'POST',
         body: formData
       })
@@ -75,8 +78,9 @@ export const App = () => {
 
   useEffect(() => {
     const fetchImages = async () => {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080'
       try {
-        const response = await fetch('http://localhost:8080/api/images')
+        const response = await fetch(apiUrl + '/api/images')
         if (!response.ok) {
           throw new Error('Failed to fetch images')
         }
@@ -92,7 +96,7 @@ export const App = () => {
   console.log(processedImages, 'processedImages')
 
   return (
-    <div className="container">
+    <div className="container" style={{ paddingTop: topSafeAreaOffset }}>
       <div className="upload-section">
         <input
           type="file"
